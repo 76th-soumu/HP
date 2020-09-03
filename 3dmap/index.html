@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="google" value="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- CSSの読み込み -->
+    <link href="css/map.css" rel="stylesheet">
+    <!-- JavaScriptの読み込み -->
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="js/cookie.js"></script>
+    <script src="js/map.js"></script>
+    <script type="text/javascript" src="js/mapsearch.js"></script>
+    <script src="js/jquery.transform.js"></script>
+    <!-- ピンの情報の読み込み -->
+    <script type="text/javascript" src="js/locationinfo.js"></script>
+    <!-- Faviconの読み込み -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <title>校内3Dマップ</title>
+    <!-- OGP -->
+    <meta name="keywords" content="校内3Dマップ,公式ホームページ,NWUSS,奈良女子大学附属中等教育学校,第75回,学園祭">
+    <meta name="Description" content="奈良女子大学附属中等教育学校の校内3Dマップです。学園祭の情報を掲載しています。また、校内に貼られているQRコードを読み取ることで現在地と向いている方向がわかります。" />
+    <meta property="og:title" content="校内3Dマップ" />
+    <meta property="og:description" content="奈良女子大学附属中等教育学校の校内3Dマップです。学園祭の情報を掲載しています。また、校内に貼られているQRコードを読み取ることで現在地と向いている方向がわかります。" />
+    <meta property="og:url" content="http://schoolfestival.ml/3dmap/" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:image" content="http://schoolfestival.ml/3dmap/images/ogp_image.jpg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="校内3Dマップ" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148411392-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        gtag('config', 'UA-148411392-1');
+    </script>
+</head>
+<body class="aspectratio" onKeyPress="Key_on(window.event.keyCode)">
+    <div id="black_background" class="nvcontent_bg"></div>
+    <div id="map_background" class="nvcontent"></div>
+    <div id="compass_box" class="defaultperspective close nvcontent">
+        <div id="loading_monitor">
+            <h1 id="loading_text">0</h1><span>%</span>
+            <p>Loaded</p>
+        </div>
+        <img src="images/compass.svg" class="compass">
+    </div>
+    <div id="wrap" class="aspectratio loading">
+
+        <!-- 取説(デフォルト：無効化) -->
+        <div id="user_navigation" class ="position1">
+            <h3 class="nv0 selected"><b>操作説明</b></h3>
+            <p class="nv0 selected">このページの使い方をご紹介します。右上の×ボタンでいつでも閉じることができます。</p>
+            <h3 class="nv1"><b>検索ボタン</b></h3>
+            <p class="nv1">このボタンを押すと「検索ウィンドウ」が開きます。<br>Enterキーか右にある検索ボタンを押すことで、入力された文字を含む場所を表示します。</p>
+            <h3 class="nv2"><b>階層選択ボタン</b></h3>
+            <p class="nv2">このボタンを押すと押した階の地図を表示します。選択中の階のボタンをもう一度押すと、全体表示に戻ります。</p>
+            <h3 class="nv3"><b>現在地ボタン</b></h3>
+            <p class="nv3">このボタンを押すと現在地を示すピンを表示します。</p>
+            <h3 class="nv4"><b>収納ボタン</b></h3>
+            <p class="nv4">このボタンを押すと上の2つのボタンが収納されます。もう一度押すと再びボタンが出現します。</p>
+            <h3 class="nv5"><b>3Dボタン</b></h3>
+            <p class="nv5">このボタンを押すとマップを上下左右に回転させることができます。×ボタンを押すと収納します。</p>
+            <h3 class="nv6"><b>マップ</b></h3>
+            <p class="nv6">ここにマップが表示されます。</p>
+            <h3 class="nv7"><b>クイックアクセス</b></h3>
+            <p class="nv7">よく検索される4つのキーワードが設定されているボタンです。このボタンを押すことで、すぐに検索ができます。</p>
+            <h3 class="nv8"><b>場所の詳細情報</b></h3>
+            <p class="nv8">選択したピンの場所の情報が表示されます。引っ張り上げることで、さらに詳しい情報を見ることができます。</p>
+            <h3 class="nv9"><b>操作説明</b></h3>
+            <p class="nv9">全てのナビゲーションを見ました。さあ、始めましょう。</p>
+            <img class="close_button" src="icon/close.svg" onClick="user_navigation_close()">
+            <div class="previous_button" onClick="user_navigation_previous()">前へ</div>
+            <div id="next_button" class="next_button" onClick="user_navigation_next()">次へ</div>
+        </div>
+
+        <div id="info_window" class="i1">
+            <h3 class="default selected"><b>現在地コードが必要です</b></h3>
+            <p class="default selected">この機能を利用するためには校内に貼られているQRコード(下図)を読み取るか、現在地コードを入力してください。</p>
+            <img class="info_image" src="images/maplocation.jpg">
+            <img class="close_button" src="icon/close.svg" onClick="info_window_close()">
+        </div>
+
+        <div id="mapcontrol">
+            <ul class="locationsearch nvcontent nv1">
+                <li class="locationsearch-txtbox"><form name="js" onsubmit="return false;"><input type="text" name="txtb" value="" class="mapsearch-textbox" id="search" placeholder="場所を探す"></form></li>
+                <li class="locationsearch-close" onclick="mapsearchclose()"><img class="control-icon-small" src="icon/close_black.svg"></li>
+                <li class="locationsearch-button" onclick="mapsearchopen()"><img class="control-icon-small" src="icon/search.svg" onclick="search()"></li>
+            </ul>
+            <ul class="floor expansionmapcontrol nvcontent nv2">
+                <div class="box_shadow"></div>
+                <li onclick="change_floor(1)" class="floor1select floor_control"><img class="control-icon" src="icon/floor1.png"></li>
+                <li onclick="change_floor(2)" class="floor2select floor_control"><img class="control-icon" src="icon/floor2.png"></li>
+                <li onclick="change_floor(3)" class="floor3select floor_control"><img class="control-icon" src="icon/floor3.png"></li>
+            </ul>
+            <ul class="location expansionmapcontrol nvcontent nv3">
+                <div class="box_shadow"></div>
+                <li onclick="getlocation_qr()" class="locationbutton third"><img class="control-icon locationicon active" src="icon/location.png"></li>
+            </ul>
+            <ul class="control-close-button_ul nvcontent nv4" onclick="controlclose()">
+                <div class="box_shadow"></div>
+                <li class="control-close-button"><img class="controlclose control-icon-small" src="icon/up.svg"></li>
+            </ul>
+        </div>
+        <div id="map3dcontrol" class="default_transition">
+            <div class="map3d-button masterbutton nvcontent nv5" onclick="map3dopen()"><b class="map3d-text">3D</b><img class="map3dcontrol_close" src="icon/close.svg"></div>
+            <div class="map3d-button r-flip nvcontent nv5" onclick="rflip()"><img class="map3dcontrol_arrow" src="icon/arrow.svg"></div>
+            <div class="map3d-button l-flip nvcontent nv5" onclick="lflip()"><img class="map3dcontrol_arrow" src="icon/arrow.svg"></div>
+            <div class="map3d-button t-flip nvcontent nv5" onclick="tflip()"><img class="map3dcontrol_arrow" src="icon/arrow.svg"></div>
+            <div class="map3d-button b-flip nvcontent nv5" onclick="bflip()"><img class="map3dcontrol_arrow" src="icon/arrow.svg"></div>
+        </div>
+        <div id="mapwindow" class="nvcontent nv6 scleft">
+            <div id="map">
+                <div id="map_camera" class="defaultperspective">
+                    <div id="mapbox" class="map_element">
+                        <img src="images/ground.svg" class="mapelement mapimage mapimage0 ground">
+                        <img src="images/floor1.svg" class="mapelement mapimage mapimage1 floor1">
+                        <img src="images/floor2.svg" class="mapelement mapimage mapimage2 floor2">
+                        <img src="images/floor3.svg" class="mapelement mapimage mapimage3 floor3">
+                    </div>
+                    <div class="pinbox map_element">
+                        <!-- 地面 -->
+                        <div class="mapelement pin ground">
+                            <table id="result">
+                                <tbody id="pinfloor0">
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 1階 -->
+                        <div class="mapelement pin floor1">
+                            <table id="result">
+                                <tbody id="pinfloor1">
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 2階 -->
+                        <div class="mapelement pin floor2">
+                            <table id="result">
+                                <tbody id="pinfloor2">
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 3階 -->
+                        <div class="mapelement pin floor3">
+                            <table id="result">
+                                <tbody id="pinfloor3">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        <div class="mapinfo defaultinfo nvcontent nv7">
+            <div class="category_button mapcategory1" onclick="searchunei()"><img src="icon/festival.png" class="mapinfo-icon"><!--<h6>運営</h6>--></div>
+            <div class="category_button mapcategory2" onclick="searchfood()"><img src="icon/food.png" class="mapinfo-icon"><!--<h6>食事</h6>--></div>
+            <div class="category_button mapcategory3" onclick="searchhatudan()"><img src="icon/baloon.png" class="mapinfo-icon"><!--<h6>発団</h6>--></div>
+            <div class="category_button mapcategory4" onclick="searchbathroom()"><img src="icon/bathroom.png" class="mapinfo-icon"><!--<h6>トイレ</h6>--></div>
+            <p id="search_result">0件ヒット</p>
+        </div>
+        <img id="finger" src="icon/finger.svg">
+        <div id="locationinfo" class="nvcontent nv8" onclick="scroll_locinfo()">
+            <p id="locationtitle"></p>
+            <h5 id="locationtitle-en"></h5>
+            <div id="locinfo-close-button" onclick="locinfoClose()"><img src="icon/close.svg"></div>
+        </div>
+    </div>
+    <span class="map_credit nvcontent" size="1">Made by 2017-2019 Mitsuhiro Kumagai</span>
+</body>
+</html>
